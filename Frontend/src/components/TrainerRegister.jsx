@@ -13,10 +13,33 @@ const TrainerRegister = () => {
     // like verifying the GitHub username or proceeding to the next step
     console.log('GitHub Username:', githubUsername);
     // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate('/AIAnalysisReport'); // Redirect to AI Analysis page
-    }, 1000);
+    try {
+    const response =  fetch('http://localhost:5000/analyze', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // If needed: 'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ username: githubUsername })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to analyze GitHub profile');
+    }
+
+    const data =  response.json();
+    console.log('AI Analysis Result:', data);
+
+    // Save result to state or localStorage if needed
+    // localStorage.setItem('analysisResult', JSON.stringify(data));
+
+    navigate('/AIAnalysisReport', { state: { analysis: data } }); // Pass result to next page
+  } catch (error) {
+    console.error('Error:', error.message);
+    alert("Failed to analyze GitHub profile. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
   };
 
   const handleLoginClick = () => {
